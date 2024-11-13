@@ -1,78 +1,119 @@
 const userModel = require("../Model/Auth")
-const bcryt = require('bcrypt')
-const passport = require('passport')
+const bcrypt = require('bcrypt')
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
 
-const register = async(req, res)=>{
-    const{username, email, password} = req.body
-    if(!username){
-        return res.json({error: "Username is required"})
-    }
-    if(!email){
-        return res.json({error: "Email is required"})
-    }
-    if(!password){
-        return res.json({error: "Password is required"})
-    }
-    if(!username || !email || !password){
-        return res.status(400).json({error: "All fields are required "})
-    }
-    const existingUser = await userModel.findOne({email})
-    if(existingUser){
-        return res.json({error: "User already exist"})
-    }
-    const salt = await bcryt.genSalt(10)
-    const hashpassword = await bcryt.hash(req.body.password, salt);
-    const newUser = new userModel({
-        username:username,
-        email:email,
-        password:hashpassword
-    })
-    await userModel.register(newUser, password, function(err){
-        if(err){
-            console.log(err);
-        }
-        passport.authenticate("local")(req,res, function(err){
-        res.json({message: "You have successfully signed up"})
-    })
 
-})
+const jwtSecret = process.env.JWT_SECRET;
+
+const transport = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD
+    }
+});
+
+async function sendMail(to, subject, htmlContent) {
+    try {
+        await transport.sendMail({
+            from: process.env.EMAIL,
+            to: to,
+            subject: subject,
+            html: htmlContent
+        });
+        console.log("Email sent successfully!");
+    } catch (error) {
+        console.error("Error sending email:", error);
+        throw new Error("Failed to send email.");
+    }
 }
 
 
-const login = async(req, res)=>{
-    const{username, password} = req.body;
-    if(!username){
-        res.json({error: "Username is required"})
-    }
-    if(!password){
-        res.json({error: "Password is required"})
-    }
-    const existingUser = await userModel.findOne({username})
-    if(!existingUser){
-        return res.json({error: "User not found! Kindly sign up to continue"})
-    }
-    const passwordMatch = await bcryt.compare(password, existingUser.password)
-    if(!passwordMatch){
-        return res.json({error: "Incorrect password"})
-    }
+const register = async (req, res) => {
+    const { username, email, password, userType, state, city,  } = req.body;
 
-    const user = new userModel({
-        username,
-        password
-    })
-    req.login(user, function(err){
-        if(err){
-            return res.json(err)
+    try {
+        if (!username || !email || !password || !userType || !state || !city) {
+            return res.status(400).json({ error: "All fields are required" });
         }
-        passport.authenticate("local")(req, res, function(){
-            res.json({message: "You have succssfully logged in"})
-        })
-    })
+
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ error: "User with this email already exists" });
+        }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const otp = crypto.randomInt(100000, 999999).toString();
+        const otpExpiration = Date.now() + 10 * 60 * 1000;
+
+        const newUser = await userModel.create({
+            username,
+            email,
+            password: hashedPassword,
+            state,
+            city,
+            userType,
+            verificationToken: otp,
+            otpExpiration,
+            isVerified: false
+        });
+
+        const subject = "Verify Your Email - OTP Included";
+        const message = `
+        <html>
+        <body>
+            <h1>Verify Your Email</h1>
+            <p>Hello, ${newUser.firstName}!</p>
+            <p>Please verify your email by entering the following one-time password (OTP):</p>
+            <p><strong>${otp}</strong></p>
+            <p>This OTP will expire in 10 minutes.</p>
+        </body>
+        </html>
+        `;
+        await sendMail(email, subject, message);
+
+        return res.status(201).json({ msg: "Candidate registered successfully. Please verify your email.", newUser });
+    } catch (error) {
+        console.error("Registration error:", error);
+        return res.status(500).json({ error: "Failed to register" });
+    }
+}
+
+const emailVerification = async (req, res) => {
+    const { email, otp } = req.body;
+
+    try {
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        if (user.otpExpiration < Date.now()) {
+            return res.status(400).json({ error: "OTP expired" });
+        }
+        if (user.verificationToken !== otp) {
+            return res.status(400).json({ error: "Invalid OTP" });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = null;
+        user.otpExpiration = null
+        await user.save();
+
+        return res.status(200).json({ msg: "Email verification successful" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Failed to verify email" });
+    }
 }
 
 
 module.exports = {
     register,
-    login
+    emailVerification
 }

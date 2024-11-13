@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 
 const connectDB = async ()=>{
     await mongoose.connect(connect_String)
-    return console.log("TechCorp Db Connected!!!")
+    return console.log("Db Connected!!!")
 }
 
 
