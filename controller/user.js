@@ -35,7 +35,7 @@ async function sendMail(to, subject, htmlContent) {
 
 
 const register = async (req, res) => {
-    const { username, email, password, userType, state, city,  } = req.body;
+    const { username, email, password, userType, state, city, } = req.body;
 
     try {
         if (!username || !email || !password || !userType || !state || !city) {
@@ -112,8 +112,41 @@ const emailVerification = async (req, res) => {
     }
 }
 
+const login = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        if (!user.isVerified) {
+            return res.status(403).json({ error: "Email is not verified" });
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ error: "Invalid credentials" });
+        }
+        const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
+        return res.json({
+            msg: "Logged in successfully",
+            token,
+            user: {
+                _id: user._id,
+                email: user.email
+            }
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Server error" });
+
+    }
+}
+
 
 module.exports = {
     register,
-    emailVerification
+    emailVerification,
+    login
 }
