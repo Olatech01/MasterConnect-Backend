@@ -128,7 +128,7 @@ const login = async (req, res) => {
             return res.status(400).json({ error: "Invalid credentials" });
         }
         const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
-        
+
         return res.json({
             msg: "Logged in successfully",
             user: {
@@ -146,10 +146,42 @@ const login = async (req, res) => {
     }
 };
 
+const changePassword = async (req, res) => {
+    const { email, oldPassword, newPassword } = req.body;
+
+    if (!email || !oldPassword || !newPassword) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    try {
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: "Invalid credentials" });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ error: "Invalid credentials" });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedPassword;
+        await user.save();
+
+        return res.status(200).json({ msg: "Password changed successfully" });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        return res.status(500).json({ error: "An error occurred while changing the password" });
+    }
+};
+
 
 
 module.exports = {
     register,
     emailVerification,
-    login
+    login,
+    changePassword,
 }
