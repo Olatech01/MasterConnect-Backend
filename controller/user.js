@@ -131,11 +131,12 @@ const login = async (req, res) => {
         
         return res.json({
             msg: "Logged in successfully",
-            token,
             user: {
                 _id: user._id,
                 email: user.email,
-                userType: user.userType 
+                userType: user.userType,
+                token: token,
+                username: user.username
             }
         });
 
