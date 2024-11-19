@@ -82,7 +82,7 @@ const basicDetails = async (req, res) => {
         companySize,
         companyEmail,
         companyRegistrationNumber,
-        companyTin,
+        companyTaxIdentidicationNumber,
         companyMedia,
         companyFoundedYear
     } = req.body;
