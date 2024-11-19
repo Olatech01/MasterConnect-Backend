@@ -100,6 +100,10 @@ const basicDetails = async (req, res) => {
             return res.status(400).json({ error: "A company with this name already exists" });
         }
 
+        if (!companyName ||!typeOfCompany ||!city ||!state ||!officialWebsite ||!companyContact ||!recruiterName ||!jobTitle ||!gender ||!age ||!recruiterEmail ||!workingYears ||!linkedinProfile ||!personalContact ||!companyAddress ||!companySize ||!companyEmail ||!companyRegistrationNumber ||!companyTaxIdentidicationNumber ||!companyMedia ||!companyFoundedYear) {
+            return res.status(400).json({ error: "All fields are required" });
+        }
+
         const profile = new companyModel({
             companyName,
             typeOfCompany,
