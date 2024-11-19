@@ -1,7 +1,8 @@
 const express = require('express')
 const { isAdmin, isLoggedin } = require('../MiddeleWare/auth')
 const { register, emailVerification, login, changePassword } = require('../controller/user')
-const { basicDetails, recruiterDetails } = require('../controller/companyRegistration')
+const { basicDetails } = require('../controller/companyRegistration')
+const { postJob, getAllJobs, getJobById } = require('../controller/JobController')
 
 
 const router = express.Router()
@@ -15,9 +16,10 @@ router.route('/changePassword').post(changePassword)
 
 
 // company //
-
 router.route('/basicDetails').post(basicDetails)
-router.route('/recruiterDetails').post(recruiterDetails)
+router.route('/postJob').post(postJob)
+router.route('/fetchAllJob').get(getAllJobs)
+router.route('/singlejob:id').get(getJobById)
 
 
 

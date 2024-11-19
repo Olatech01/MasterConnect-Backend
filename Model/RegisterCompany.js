@@ -7,7 +7,8 @@ const companySchema = new mongoose.Schema({
     typeOfCompany: String,
     city: String,
     state: String,
-    logo: String, 
+    // proof: String,
+    // companyLogo: String,
     officialWebsite: String,
     companyContact: String,
     companyFoundedYear: String,
@@ -15,19 +16,20 @@ const companySchema = new mongoose.Schema({
     jobTitle: String,
     gender: String,
     age: Number,
-    email: String,
+    recruiterEmail: String,
     workingYears: Number,
     linkedinProfile: String,
     personalContact: String,
-    verificationDetails: {
-        documentType: String,
-        documentFile: String,
-    },
-    additionalDetails: {
-        notes: String,
-        attachments: [String],
-    },
-}, {timestamps: true})
+    // profilePhoto: String,
+    // certificates: String,
+    companyAddress: String,
+    companySize: Number,
+    companyEmail: String,
+    companyRegistrationNumber: Number,
+    companyTaxIdentidicationNumber: Number,
+    companyMedia: String
+
+}, { timestamps: true })
 
 const companyModel = model('company', companySchema)
 

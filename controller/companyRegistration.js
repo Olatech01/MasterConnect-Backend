@@ -1,7 +1,66 @@
 const companyModel = require("../Model/RegisterCompany");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
 
+const uploadDir = path.join(__dirname, "../uploads");
+try {
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
+} catch (err) {
+    console.error("Error creating upload directory:", err);
+}
 
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
+        cb(null, uniqueName);
+    }
+});
 
+function checkFileType(file, cb) {
+    const filetypes = /jpeg|jpg|png|gif/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb(new Error("Only images (jpeg, jpg, png, gif) are allowed."));
+    }
+}
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        checkFileType(file, cb);
+    }
+}).fields([
+    { name: "companyLogo", maxCount: 1 },
+    { name: "proof", maxCount: 1 },
+    { name: "profilePhoto", maxCount: 1 },
+    { name: "certificates", maxCount: 1 },
+]);
+
+const multerUpload = (req, res) => {
+    return new Promise((resolve, reject) => {
+        upload(req, res, (err) => {
+            if (err instanceof multer.MulterError) {
+                reject(new Error(`Multer error: ${err.message}`));
+            } else if (err) {
+                reject(new Error(`File upload error: ${err.message}`));
+            } else {
+                resolve();
+            }
+        });
+    });
+};
 
 const basicDetails = async (req, res) => {
     const {
@@ -15,45 +74,69 @@ const basicDetails = async (req, res) => {
         jobTitle,
         gender,
         age,
-        email,
+        recruiterEmail,
         workingYears,
         linkedinProfile,
-        personalContact, } = req.body;
+        personalContact,
+        companyAddress,
+        companySize,
+        companyEmail,
+        companyRegistrationNumber,
+        companyTin,
+        companyMedia,
+        companyFoundedYear
+    } = req.body;
 
     try {
-        const profile = new companyModel({ companyName, typeOfCompany, city, state, officialWebsite, companyContact, recruiterName, jobTitle, gender, age, email, workingYears, linkedinProfile, personalContact });
-        await profile.save();
-        return res.json({ message: "Congratulation, Your company has been registered successfully", profileId: profile._id });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Failed to save step 1 data" });
-    }
-}
+        // await multerUpload(req, res);
 
-const recruiterDetails = async (req, res) => {
-    const { recruiterName, jobTitle, gender, age, email, workingYears, linkedinProfile, personalContact } = req.body;
+        // const proofPath = req.files?.proof?.[0]?.path || null;
+        // const companyLogoPath = req.files?.companyLogo?.[0]?.path || null;
+        // const profilePhotoPath = req.files?.profilePhoto?.[0]?.path || null;
+        // const certificatesPath = req.files?.certificates?.[0]?.path || null;
 
+        const existingCompany = await companyModel.findOne({ companyName });
+        if (existingCompany) {
+            return res.status(400).json({ error: "A company with this name already exists" });
+        }
 
-    try {
-        const recruiter = new companyModel({
+        const profile = new companyModel({
+            companyName,
+            typeOfCompany,
+            city,
+            state,
+            // companyLogo: companyLogoPath,
+            officialWebsite,
+            companyFoundedYear,
+            companyContact,
             recruiterName,
             jobTitle,
             gender,
             age,
-            email,
+            // proof: proofPath,
+            recruiterEmail,
             workingYears,
             linkedinProfile,
             personalContact,
+            // profilePhoto: profilePhotoPath,
+            // certificates: certificatesPath,
+            companyAddress,
+            companySize,
+            companyEmail,
+            companyRegistrationNumber,
+            companyTaxIdentidicationNumber,
+            companyMedia
         });
-        await recruiter.save();
-        return res.json({ message: "Step 2 completed" });
+
+        await profile.save();
+        return res.json({
+            message: "Congratulations, your company has been registered successfully, Please wait for the admin approval......",
+            companyId: profile._id,
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Failed to save step 2 data" });
+        res.status(500).json({ error: error.message });
     }
-}
+};
 
-module.exports = {
-    basicDetails,
-    recruiterDetails,
-}
+module.exports = { basicDetails };
