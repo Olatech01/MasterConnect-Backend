@@ -132,7 +132,7 @@ const register = async (req, res) => {
       Verify Your Email
     </div>
     <div class="email-body">
-      <h1>Hello, ${newUser.firstName}!</h1>
+      <h1>Hello, ${newUser.username}!</h1>
       <p>Thank you for signing up with us! To verify your email, please use the one-time password (OTP) below:</p>
       <div class="otp-box">${otp}</div>
       <p><strong>Note:</strong> This OTP will expire in 10 minutes.</p>
