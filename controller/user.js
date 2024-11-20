@@ -66,16 +66,86 @@ const register = async (req, res) => {
 
         const subject = "Verify Your Email - OTP Included";
         const message = `
-        <html>
-        <body>
-            <h1>Verify Your Email</h1>
-            <p>Hello, ${newUser.firstName}!</p>
-            <p>Please verify your email by entering the following one-time password (OTP):</p>
-            <p><strong>${otp}</strong></p>
-            <p>This OTP will expire in 10 minutes.</p>
-        </body>
-        </html>
-        `;
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      border: 2px solid #003591;
+    }
+    .email-header {
+      background-color: #896bc2;
+      color: #ffffff;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .email-body {
+      padding: 20px;
+      text-align: left;
+      line-height: 1.6;
+    }
+    .email-body h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #003591;
+    }
+    .email-body p {
+      margin: 10px 0;
+    }
+    .otp-box {
+      display: block;
+      margin: 20px auto;
+      padding: 10px;
+      font-size: 20px;
+      text-align: center;
+      color: #ffffff;
+      background-color: #003591;
+      border-radius: 5px;
+      width: 150px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .email-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="email-header">
+      Verify Your Email
+    </div>
+    <div class="email-body">
+      <h1>Hello, ${newUser.firstName}!</h1>
+      <p>Thank you for signing up with us! To verify your email, please use the one-time password (OTP) below:</p>
+      <div class="otp-box">${otp}</div>
+      <p><strong>Note:</strong> This OTP will expire in 10 minutes.</p>
+      <p>If you didn’t request this email, you can safely ignore it.</p>
+    </div>
+    <div class="email-footer">
+      &copy; ${new Date().getFullYear()} Your Company. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
+`;
+
         await sendMail(email, subject, message);
 
         return res.status(201).json({ msg: "Candidate registered successfully. Please verify your email.", newUser });
