@@ -88,12 +88,12 @@ const basicDetails = async (req, res) => {
     } = req.body;
 
     try {
-        // await multerUpload(req, res);
+        await multerUpload(req, res);
 
-        // const proofPath = req.files?.proof?.[0]?.path || null;
-        // const companyLogoPath = req.files?.companyLogo?.[0]?.path || null;
-        // const profilePhotoPath = req.files?.profilePhoto?.[0]?.path || null;
-        // const certificatesPath = req.files?.certificates?.[0]?.path || null;
+        const proofPath = req.files?.proof?.[0]?.path || null;
+        const companyLogoPath = req.files?.companyLogo?.[0]?.path || null;
+        const profilePhotoPath = req.files?.profilePhoto?.[0]?.path || null;
+        const certificatesPath = req.files?.certificates?.[0]?.path || null;
 
         const existingCompany = await companyModel.findOne({ companyName });
         if (existingCompany) {
@@ -109,7 +109,7 @@ const basicDetails = async (req, res) => {
             typeOfCompany,
             city,
             state,
-            // companyLogo: companyLogoPath,
+            companyLogo: companyLogoPath,
             officialWebsite,
             companyFoundedYear,
             companyContact,
@@ -117,13 +117,13 @@ const basicDetails = async (req, res) => {
             jobTitle,
             gender,
             age,
-            // proof: proofPath,
+            proof: proofPath,
             recruiterEmail,
             workingYears,
             linkedinProfile,
             personalContact,
-            // profilePhoto: profilePhotoPath,
-            // certificates: certificatesPath,
+            profilePhoto: profilePhotoPath,
+            certificates: certificatesPath,
             companyAddress,
             companySize,
             companyEmail,
