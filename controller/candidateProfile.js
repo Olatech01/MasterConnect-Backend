@@ -38,7 +38,6 @@ const uploadCandidateDetails = async (req, res) => {
             degreeType,
             institutionStartDate,
             institutionEndDate,
-            degreeTypeEndDate,
             departmentType,
             governmentId,
             collegeIdProof,
