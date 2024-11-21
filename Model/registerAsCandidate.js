@@ -33,6 +33,10 @@ const candidateProfileSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        internShipCompleted: {
+            type: String,
+            required: true,
+        },
         governmentId: {
             type: String,
             required: true,
