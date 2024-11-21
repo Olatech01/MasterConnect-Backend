@@ -23,7 +23,6 @@ router.post(
     { name: "collegeIdProof" },
     { name: "marksheets" },
     { name: "certifications" },
-    { name: "video" },
   ]),
   uploadCandidateDetails
 );

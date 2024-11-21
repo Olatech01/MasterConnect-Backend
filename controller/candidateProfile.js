@@ -17,10 +17,9 @@ const uploadCandidateDetails = async (req, res) => {
         const certifications = req.files["certifications"]
             ? req.files["certifications"][0].path
             : null;
-        const video = req.files["video"] ? req.files["video"][0].path : null;
 
 
-        if (!governmentId || !collegeIdProof || !marksheets || !certifications || !video || !rank || !hobbies || !candidateName || !candidateEmail || !candidateAge || !internShipCompleted || !candidateGender || !candidatePassport || !candidatePosition || !candidateLinkedin || !institution || !degreeType || !institutionEndDate || !institutionStartDate || !degreeTypeEndDate || !departmentType) {
+        if (!governmentId || !collegeIdProof || !marksheets || !certifications || !rank || !hobbies || !candidateName || !candidateEmail || !candidateAge || !internShipCompleted || !candidateGender || !candidatePassport || !candidatePosition || !candidateLinkedin || !institution || !degreeType || !institutionEndDate || !institutionStartDate || !degreeTypeEndDate || !departmentType) {
             return res.status(400).json({
                 message: "All candidate verification details are required",
             });
@@ -44,7 +43,6 @@ const uploadCandidateDetails = async (req, res) => {
             collegeIdProof,
             marksheets,
             certifications,
-            video,
             hobbies,
             rank,
         });
