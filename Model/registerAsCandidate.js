@@ -48,9 +48,6 @@ const candidateSchema = new Schema({
     certifications: {
         type: String,
     },
-    video: {
-        type: String,
-    },
     hobbies: {
         type: String,
     },

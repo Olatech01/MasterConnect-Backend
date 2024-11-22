@@ -37,7 +37,6 @@ const uploadCandidateDetails = async (req, res) => {
       "candidateAge",
       "internShipCompleted",
       "candidateGender",
-      "candidatePassport",
       "candidatePosition",
       "candidateLinkedin",
       "institution",
@@ -57,6 +56,7 @@ const uploadCandidateDetails = async (req, res) => {
     const collegeIdProof = req.files?.["collegeIdProof"]?.[0]?.path || null;
     const marksheets = req.files?.["marksheets"]?.[0]?.path || null;
     const certifications = req.files?.["certifications"]?.[0]?.path || null;
+    const candidatePassport = req.files?.["candidatePassport"]?.path || null;
 
     if (!governmentId || !collegeIdProof || !marksheets || !certifications) {
       return res.status(400).json({ message: "All file uploads are required" });
@@ -73,6 +73,7 @@ const uploadCandidateDetails = async (req, res) => {
       collegeIdProof,
       marksheets,
       certifications,
+      candidatePassport,  
     });
 
     return res.status(201).json({

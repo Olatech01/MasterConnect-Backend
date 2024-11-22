@@ -37,6 +37,7 @@ router
             { name: "collegeIdProof" },
             { name: "marksheets" },
             { name: "certifications" },
+            {name: "candidatePassport"}
         ]),
         uploadCandidateDetails
     );
