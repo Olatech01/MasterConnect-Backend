@@ -1,65 +1,65 @@
 const CandidateProfile = require("../Model/registerAsCandidate");
 const multer = require("multer");
-const fs = require("fs");
 
-// Ensure upload directory exists
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = "uploads/";
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
 
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const allowedMimeTypes = ["image/jpeg", "image/png", "application/pdf"];
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-      return cb(new Error("Invalid file type! Only JPEG, PNG, and PDF are allowed."));
-    }
-    cb(null, true);
-  },
-});
 
 const uploadCandidateDetails = async (req, res) => {
   try {
-    const requiredFields = [
-      "rank",
-      "hobbies",
-      "candidateName",
-      "candidateEmail",
-      "candidateAge",
-      "internShipCompleted",
-      "candidateGender",
-      "candidatePosition",
-      "candidateLinkedin",
-      "institution",
-      "degreeType",
-      "institutionStartDate",
-      "institutionEndDate",
-      "departmentType",
-    ];
+    const {
+      hobbies,
+      rank,
+      candidateName,
+      candidateEmail,
+      candidateAge,
+      candidateGender,
+      internShipCompleted,
+      candidatePosition,
+      candidateLinkedin,
+      institution,
+      degreeType,
+      institutionStartDate,
+      institutionEndDate,
+      departmentType,
+    } = req.body;
 
-    for (const field of requiredFields) {
-      if (!req.body[field]) {
-        return res.status(400).json({ message: `Missing required field: ${field}` });
-      }
-    }
+    
 
-
-    const existingCandidate = await CandidateProfile.findOne({ candidateEmail });
-    if (existingCandidate) {
-      return res.status(400).json({ message: "Candidate with this email already exists." });
+    if (
+      !rank ||
+      !hobbies ||
+      !candidateName ||
+      !candidateEmail ||
+      !candidateAge ||
+      !internShipCompleted ||
+      !candidateGender ||
+      !candidatePosition ||
+      !candidateLinkedin ||
+      !institution ||
+      !degreeType ||
+      !institutionStartDate ||
+      !institutionEndDate ||
+      !departmentType
+    ) {
+      return res.status(400).json({
+        message: "All candidate verification details are required",
+      });
     }
 
     const candidate = await CandidateProfile.create({
-      ...req.body,
+      candidateName,
+      candidateEmail,
+      candidateAge,
+      candidateGender,
+      candidatePosition,
+      candidateLinkedin,
+      internShipCompleted,
+      institution,
+      degreeType,
+      institutionStartDate,
+      institutionEndDate,
+      departmentType,
+      hobbies,
+      rank,
     });
 
     return res.status(201).json({
@@ -67,18 +67,14 @@ const uploadCandidateDetails = async (req, res) => {
       candidate,
     });
   } catch (error) {
-    console.error("Error processing candidate details:", {
-      message: error.message,
-      stack: error.stack,
-    });
+    console.error("Error processing candidate details:", error);
     return res.status(500).json({
       message: "An error occurred while saving candidate details",
-      error: error.message,
+      error,
     });
   }
 };
 
 module.exports = {
   uploadCandidateDetails,
-  upload,
 };
