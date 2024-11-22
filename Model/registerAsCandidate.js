@@ -19,10 +19,6 @@ const candidateSchema = new Schema({
         type: String,
         required: true,
     },
-    candidatePassport: {
-        type: String,
-        required: true,
-    },
     candidatePosition: {
         type: String,
         required: true,
@@ -34,19 +30,6 @@ const candidateSchema = new Schema({
     internShipCompleted: {
         type: String,
         required: true,
-    },
-    governmentId: {
-        type: String,
-        required: true,
-    },
-    collegeIdProof: {
-        type: String,
-    },
-    marksheets: {
-        type: String,
-    },
-    certifications: {
-        type: String,
     },
     hobbies: {
         type: String,

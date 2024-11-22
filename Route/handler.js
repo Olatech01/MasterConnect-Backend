@@ -29,18 +29,7 @@ router.route("/fetchAllJob").get(getAllJobs);
 router.route("/singlejob/:id").get(getJobById);
 
 // Candidate Routes
-router
-    .route("/candidate")
-    .post(
-        upload.fields([
-            { name: "governmentId" },
-            { name: "collegeIdProof" },
-            { name: "marksheets" },
-            { name: "certifications" },
-            {name: "candidatePassport"}
-        ]),
-        uploadCandidateDetails
-    );
+router.route("/candidate").post(uploadCandidateDetails);
 
 
 
