@@ -12,8 +12,7 @@ const {
     getAllJobs,
     getJobById,
 } = require("../controller/JobController");
-const { uploadCandidateDetails } = require("../controller/candidateProfile");
-const upload = require("../MiddeleWare/Multer");
+const { uploadCandidateDetails, upload } = require("../controller/candidateProfile");
 
 const router = express.Router();
 

@@ -1,4 +1,17 @@
 const CandidateProfile = require("../Model/registerAsCandidate");
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`); 
+  },
+});
+
+const upload = multer({ storage });
+
 
 const uploadCandidateDetails = async (req, res) => {
   try {
@@ -96,4 +109,5 @@ const uploadCandidateDetails = async (req, res) => {
 
 module.exports = {
   uploadCandidateDetails,
+  upload,
 };
