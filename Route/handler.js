@@ -24,9 +24,20 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
 
+
+const allowedTypes = ["image/jpeg", "image/png", "image/pdf"];
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadDir);
+    },
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error("Unsupported file type."), false);
+        }
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
