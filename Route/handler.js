@@ -12,42 +12,9 @@ const {
     getAllJobs,
     getJobById,
 } = require("../controller/JobController");
-const { uploadCandidateDetails, upload } = require("../controller/candidateProfile");
+const { uploadCandidateDetails } = require("../controller/candidateProfile");
+const upload = require("../MiddeleWare/upload");
 const router = express.Router();
-
-// const uploadDir = 'uploads/';
-// if (!fs.existsSync(uploadDir)) {
-//     fs.mkdirSync(uploadDir);
-// }
-
-
-// const allowedTypes = ["image/jpeg", "image/png", "image/pdf"];
-
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         cb(null, uploadDir);
-//     },
-//     limits: { fileSize: 5 * 1024 * 1024 },
-//     fileFilter: (req, file, cb) => {
-//         if (allowedTypes.includes(file.mimetype)) {
-//             cb(null, true);
-//         } else {
-//             cb(new Error("Unsupported file type."), false);
-//         }
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, Date.now() + path.extname(file.originalname));
-//     },
-// });
-
-// const upload = multer({
-//     storage,
-// }).fields([
-//     { name: 'passport', maxCount: 1 },
-//     { name: 'governmentID', maxCount: 1 },
-//     { name: 'collegeID', maxCount: 1 },
-//     { name: 'certificate', maxCount: 1 },
-// ]);
 
 
 // router.post('/candidateRegistration', async (req, res) => {
@@ -113,14 +80,17 @@ router.route("/emailVerification").post(emailVerification);
 router.route("/login").post(login);
 router.route("/changePassword").post(changePassword);
 
-// Company Routes
 router.route("/basicDetails").post(basicDetails);
 router.route("/postJob").post(postJob);
 router.route("/fetchAllJob").get(getAllJobs);
 router.route("/singlejob/:id").get(getJobById);
 
-// Candidate Routes
-router.route("/candidate").post(uploadCandidateDetails, upload);
+router.route("/candidate").post(upload.fields([
+    { name: "passport", maxCount: 1 },
+    { name: "governmentID", maxCount: 1 },
+    { name: "collegeID", maxCount: 1 },
+    { name: "certificate", maxCount: 1 },
+ ]), uploadCandidateDetails);
 
 
 
