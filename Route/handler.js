@@ -54,14 +54,14 @@ const upload = multer({
 ]);
 
 
-router.post('/candidateRegistration', upload, async (req, res) => {
+router.post('/candidateRegistration', async (req, res) => {
     try {
-        console.log('Request Body:', req.body);
-        console.log('Uploaded Files:', req.files);
+        // console.log('Request Body:', req.body);
+        // console.log('Uploaded Files:', req.files);
 
-        if (!req.files.passport || !req.files.governmentID || !req.files.collegeID || !req.files.certificate) {
-            return res.status(400).json({ error: 'Required files are missing' });
-        }
+        // if (!req.files.passport || !req.files.governmentID || !req.files.collegeID || !req.files.certificate) {
+        //     return res.status(400).json({ error: 'Required files are missing' });
+        // }
 
         const {
             candidateName,
@@ -95,10 +95,10 @@ router.post('/candidateRegistration', upload, async (req, res) => {
             departmentType,
             hobbies,
             rank,
-            passport: req.files.passport[0].path,
-            governmentID: req.files.governmentID[0].path,
-            collegeID: req.files.collegeID[0].path,
-            certificate: req.files.certificate[0].path,
+            // passport: req.files.passport[0].path,
+            // governmentID: req.files.governmentID[0].path,
+            // collegeID: req.files.collegeID[0].path,
+            // certificate: req.files.certificate[0].path,
         });
 
         console.log('Profile to Save:', profile);
