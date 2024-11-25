@@ -3,14 +3,14 @@ const CandidateProfile = require("../Model/registerAsCandidate");
 const uploadCandidateDetails = async (req, res) => {
   try {
     // Check if files are provided
-    if (
-      !req.files.passport ||
-      !req.files.governmentID ||
-      !req.files.collegeID ||
-      !req.files.certificate
-    ) {
-      return res.status(400).json({ error: "All required files must be uploaded." });
+    if (!req.files.passport || !req.files.passport || !req.files.collegeID || !req.files.certificates) {
+      return res.status(400).json({ message: 'Main image and additional images are required' });
     }
+
+    const passportPath = req.files.passport[0].path;
+    const governmentPath = req.files.governmentID[0].path;
+    const collegePath = req.files.collegeID[0].path;
+    const certificatesPath = req.files.certificates[0].path;
 
     const {
       candidateName,
@@ -29,16 +29,6 @@ const uploadCandidateDetails = async (req, res) => {
       rank,
     } = req.body;
 
-    // Validate required fields
-    if (
-      !candidateName ||
-      !candidateEmail ||
-      !candidateAge ||
-      !candidateGender ||
-      !candidatePosition
-    ) {
-      return res.status(400).json({ error: "Missing required candidate details." });
-    }
 
     // Save candidate profile
     const candidate = await CandidateProfile.create({
@@ -56,10 +46,10 @@ const uploadCandidateDetails = async (req, res) => {
       departmentType,
       hobbies,
       rank,
-      passport: req.files.passport[0].path,
-      governmentID: req.files.governmentID[0].path,
-      collegeID: req.files.collegeID[0].path,
-      certificate: req.files.certificate[0].path,
+      passport: passportPath,
+      governmentID: governmentPath,
+      collegeID: collegePath,
+      certificate: certificatesPath,
     });
 
     return res.status(201).json({
