@@ -32,8 +32,9 @@ const upload = multer({
     storage:
         storage
 }).fields([
-    { name: 'profilePicture', maxCount: 1 },
-    { name: 'document', maxCount: 1 },
+    { name: 'passport', maxCount: 1 },
+    { name: 'governmentID', maxCount: 1 },
+    { name: 'collegeID', maxCount: 1 },
     { name: 'certificate', maxCount: 1 }
 ]);
 
