@@ -1,66 +1,46 @@
 const CandidateProfile = require("../Model/registerAsCandidate");
 
-
-
-
-
 const uploadCandidateDetails = async (req, res) => {
   try {
-    // Check uploaded files
+    // Check if files are provided
     if (
       !req.files.passport ||
       !req.files.governmentID ||
       !req.files.collegeID ||
       !req.files.certificate
     ) {
-      return res.status(400).json({ error: "Required files are missing" });
+      return res.status(400).json({ error: "All required files must be uploaded." });
     }
 
     const {
-      hobbies,
-      rank,
       candidateName,
       candidateEmail,
       candidateAge,
       candidateGender,
-      internShipCompleted,
       candidatePosition,
       candidateLinkedin,
+      internShipCompleted,
       institution,
       degreeType,
       institutionStartDate,
       institutionEndDate,
       departmentType,
+      hobbies,
+      rank,
     } = req.body;
 
     // Validate required fields
-    const missingFields = [];
-    [
-      "hobbies",
-      "rank",
-      "candidateName",
-      "candidateEmail",
-      "candidateAge",
-      "candidateGender",
-      "internShipCompleted",
-      "candidatePosition",
-      "candidateLinkedin",
-      "institution",
-      "degreeType",
-      "institutionStartDate",
-      "institutionEndDate",
-      "departmentType",
-    ].forEach((field) => {
-      if (!req.body[field]) missingFields.push(field);
-    });
-
-    if (missingFields.length > 0) {
-      return res.status(400).json({
-        error: `The following fields are required: ${missingFields.join(", ")}`,
-      });
+    if (
+      !candidateName ||
+      !candidateEmail ||
+      !candidateAge ||
+      !candidateGender ||
+      !candidatePosition
+    ) {
+      return res.status(400).json({ error: "Missing required candidate details." });
     }
 
-    // Create and save candidate profile
+    // Save candidate profile
     const candidate = await CandidateProfile.create({
       candidateName,
       candidateEmail,
@@ -83,18 +63,13 @@ const uploadCandidateDetails = async (req, res) => {
     });
 
     return res.status(201).json({
-      message: "Candidate verification details saved successfully",
+      message: "Candidate verification details saved successfully.",
       candidate,
     });
   } catch (error) {
     console.error("Error processing candidate details:", error.message);
-    return res.status(500).json({
-      error: "An error occurred while saving candidate details.",
-    });
+    return res.status(500).json({ error: "An error occurred while processing the request." });
   }
 };
 
-
-module.exports = {
-  uploadCandidateDetails,
-};
+module.exports = uploadCandidateDetails;
