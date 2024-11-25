@@ -1,116 +1,142 @@
 const CandidateProfile = require("../Model/registerAsCandidate");
 const multer = require("multer");
 const path = require("path"); // Import for file path manipulation
+const fs = require('fs');
+
 
 // Multer Configuration (Improved error handling and file validation)
+const uploadDir = "uploads/";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+// Allowed file types
+const allowedTypes = ["image/jpeg", "image/png"];
+
+// Multer storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Specify the upload directory
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9); 1
-    const ext = path.extname(file.originalname); // Extract extension
-    cb(null, `<span class="math-inline">\{uniqueSuffix\}</span>{ext}`); // Combine unique prefix with extension
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
-const allowedTypes = ["image/jpeg", "image/png", "image/pdf"]; // Allowed file types
+// Multer file filter for validation
+const fileFilter = (req, file, cb) => {
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Unsupported file type. Only JPEG and PNG are allowed."), false);
+  }
+};
+
+// Multer configuration
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Set file size limit to 5MB (adjust as needed)
-  fileFilter: (req, file, cb) => {
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Unsupported file type."), false);
-    }
-  },
-});
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+}).fields([
+  { name: "passport", maxCount: 1 },
+  { name: "governmentID", maxCount: 1 },
+  { name: "collegeID", maxCount: 1 },
+  { name: "certificate", maxCount: 1 },
+]);
+
 
 const uploadCandidateDetails = async (req, res) => {
-  // Multer upload with error handling
   try {
-    await upload.fields([
-      { name: "passport", maxCount: 1 },
-      { name: "governmentID", maxCount: 1 },
-      { name: "collegeID", maxCount: 1 },
-      { name: "certificates", maxCount: 1 },
-    ])(req, res, async (err) => {
-      if (err) {
-        return res.status(500).json({ message: "File upload error", error: err.message });
-      }
+    // Check uploaded files
+    if (
+      !req.files.passport ||
+      !req.files.governmentID ||
+      !req.files.collegeID ||
+      !req.files.certificate
+    ) {
+      return res.status(400).json({ error: "Required files are missing" });
+    }
 
-      const {
-        hobbies = "", 
-        rank = "",
-        candidateName = "",
-        candidateEmail = "",
-        candidateAge = 0,
-        candidateGender = "",
-        internShipCompleted = false,
-        candidatePosition = "",
-        candidateLinkedin = "",
-        institution = "",
-        degreeType = "",
-        institutionStartDate = "",
-        institutionEndDate = "",
-        departmentType = "",
-      } = req.body;
+    const {
+      hobbies,
+      rank,
+      candidateName,
+      candidateEmail,
+      candidateAge,
+      candidateGender,
+      internShipCompleted,
+      candidatePosition,
+      candidateLinkedin,
+      institution,
+      degreeType,
+      institutionStartDate,
+      institutionEndDate,
+      departmentType,
+    } = req.body;
 
+    // Validate required fields
+    const missingFields = [];
+    [
+      "hobbies",
+      "rank",
+      "candidateName",
+      "candidateEmail",
+      "candidateAge",
+      "candidateGender",
+      "internShipCompleted",
+      "candidatePosition",
+      "candidateLinkedin",
+      "institution",
+      "degreeType",
+      "institutionStartDate",
+      "institutionEndDate",
+      "departmentType",
+    ].forEach((field) => {
+      if (!req.body[field]) missingFields.push(field);
+    });
 
-      if (
-        !rank ||
-        !hobbies ||
-        !candidateName ||
-        !candidateEmail ||
-        !candidateAge ||
-        !internShipCompleted ||
-        !candidateGender ||
-        !candidatePosition ||
-        !candidateLinkedin ||
-        !institution ||
-        !degreeType ||
-        !institutionStartDate ||
-        !institutionEndDate ||
-        !departmentType
-      ) {
-        return res.status(400).json({
-          message: "All candidate verification details are required",
-        });
-      }
-
-      const candidate = await CandidateProfile.create({
-        candidateName,
-        candidateEmail,
-        candidateAge,
-        candidateGender,
-        candidatePosition,
-        candidateLinkedin,
-        internShipCompleted,
-        institution,
-        degreeType,
-        institutionStartDate,
-        institutionEndDate,
-        departmentType,
-        hobbies,
-        rank,
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        error: `The following fields are required: ${missingFields.join(", ")}`,
       });
+    }
 
-      return res.status(201).json({
-        message: "Candidate verification details saved successfully",
-        candidate,
-      });
+    // Create and save candidate profile
+    const candidate = await CandidateProfile.create({
+      candidateName,
+      candidateEmail,
+      candidateAge,
+      candidateGender,
+      candidatePosition,
+      candidateLinkedin,
+      internShipCompleted,
+      institution,
+      degreeType,
+      institutionStartDate,
+      institutionEndDate,
+      departmentType,
+      hobbies,
+      rank,
+      passport: req.files.passport[0].path,
+      governmentID: req.files.governmentID[0].path,
+      collegeID: req.files.collegeID[0].path,
+      certificate: req.files.certificate[0].path,
+    });
+
+    return res.status(201).json({
+      message: "Candidate verification details saved successfully",
+      candidate,
     });
   } catch (error) {
-    console.error("Error processing candidate details:", error);
+    console.error("Error processing candidate details:", error.message);
     return res.status(500).json({
-      message: "An error occurred while saving"
-
+      error: "An error occurred while saving candidate details.",
     });
-  };
-}
+  }
+};
 
 
 module.exports = {
   uploadCandidateDetails,
+  upload,
 };
