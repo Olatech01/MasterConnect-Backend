@@ -57,11 +57,27 @@ const candidateSchema = new Schema({
         type: String,
         required: true,
     },
+    passport: {
+        type: String,
+        required: true,
+    },
+    governmentID: {
+        type: String,
+        required: true,
+    },
+    collegeID: {
+        type: String,
+        required: true,
+    },
+    certificates: {
+        type: String,
+        required: true,
+    },
     createdAt: {
         type: Date,
         default: Date.now,
     },
-}, {timestamps: true})
+}, { timestamps: true })
 
 const CandidateProfile = model('Candidate', candidateSchema);
 
