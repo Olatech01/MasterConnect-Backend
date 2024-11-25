@@ -85,12 +85,16 @@ router.route("/postJob").post(postJob);
 router.route("/fetchAllJob").get(getAllJobs);
 router.route("/singlejob/:id").get(getJobById);
 
-router.route("/candidate").post(upload.fields([
-    { name: "passport", maxCount: 1 },
-    { name: "governmentID", maxCount: 1 },
-    { name: "collegeID", maxCount: 1 },
-    { name: "certificate", maxCount: 1 },
- ]), uploadCandidateDetails);
+router.post(
+    "/candidateRegistration",
+    upload.fields([
+        { name: "passport", maxCount: 1 },
+        { name: "governmentID", maxCount: 1 },
+        { name: "collegeID", maxCount: 1 },
+        { name: "certificate", maxCount: 1 },
+    ]),
+    uploadCandidateDetails
+);
 
 
 
