@@ -57,7 +57,6 @@ const uploadCandidateDetails = async (req, res) => {
         departmentType = "",
       } = req.body;
 
-      const { passport, governmentID, collegeID, certificates } = req.files || {};
 
       if (
         !rank ||
@@ -73,11 +72,7 @@ const uploadCandidateDetails = async (req, res) => {
         !degreeType ||
         !institutionStartDate ||
         !institutionEndDate ||
-        !departmentType ||
-        !passport?.[0] ||
-        !governmentID?.[0] ||
-        !collegeID?.[0] ||
-        !certificates?.[0]
+        !departmentType
       ) {
         return res.status(400).json({
           message: "All candidate verification details are required",
@@ -99,10 +94,6 @@ const uploadCandidateDetails = async (req, res) => {
         departmentType,
         hobbies,
         rank,
-        passport: `/uploads/${passport[0].filename}`,
-        governmentID: `/uploads/${governmentID[0].filename}`,
-        collegeID: `/uploads/${collegeID[0].filename}`,
-        certificates: `/uploads/${certificates[0].filename}`,
       });
 
       return res.status(201).json({
