@@ -15,32 +15,43 @@ const {
 const { uploadCandidateDetails } = require("../controller/candidateProfile");
 const multer = require("multer")
 const path = require("path");
+const fs = require('fs');
 const CandidateProfile = require("../Model/registerAsCandidate");
 const router = express.Router();
 
+const uploadDir = 'uploads/';
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+}
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
-        cb(null,
-            Date.now() + path.extname(file.originalname));
-    }
+        cb(null, Date.now() + path.extname(file.originalname));
+    },
 });
 
 const upload = multer({
-    storage:
-        storage
+    storage,
 }).fields([
     { name: 'passport', maxCount: 1 },
     { name: 'governmentID', maxCount: 1 },
     { name: 'collegeID', maxCount: 1 },
-    { name: 'certificate', maxCount: 1 }
+    { name: 'certificate', maxCount: 1 },
 ]);
 
 
-router.post("/candidateRegistration", upload, async (req, res) => {
+router.post('/candidateRegistration', upload, async (req, res) => {
     try {
+        console.log('Request Body:', req.body);
+        console.log('Uploaded Files:', req.files);
+
+        if (!req.files.passport || !req.files.governmentID || !req.files.collegeID || !req.files.certificate) {
+            return res.status(400).json({ error: 'Required files are missing' });
+        }
+
         const {
             candidateName,
             candidateEmail,
@@ -57,12 +68,6 @@ router.post("/candidateRegistration", upload, async (req, res) => {
             hobbies,
             rank,
         } = req.body;
-        const passportPath = req.files.passport[0].path;
-        const governmentIDPath = req.files.governmentID[0].path;
-        const collegeIDPath = req.files.collegeID[0].path;
-        const certificatePath = req.files.certificate[0].path;
-
-
 
         const profile = new CandidateProfile({
             candidateName,
@@ -79,21 +84,21 @@ router.post("/candidateRegistration", upload, async (req, res) => {
             departmentType,
             hobbies,
             rank,
-            passport: passportPath,
-            governmentID: governmentIDPath,
-            collegeID: collegeIDPath,
-            certificate: certificatePath,
+            passport: req.files.passport[0].path,
+            governmentID: req.files.governmentID[0].path,
+            collegeID: req.files.collegeID[0].path,
+            certificate: req.files.certificate[0].path,
         });
+
+        console.log('Profile to Save:', profile);
 
         await profile.save();
         res.status(201).json({ message: 'Candidate details registered successfully', profile });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            error: 'Server Error'
-        });
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Server Error' });
     }
-})
+});
 
 // User Routes
 router.route("/register").post(register);
