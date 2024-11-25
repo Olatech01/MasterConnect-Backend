@@ -14,6 +14,7 @@ const {
 } = require("../controller/JobController");
 const upload = require("../MiddeleWare/upload");
 const uploadCandidateDetails = require("../controller/candidateProfile");
+const { candidate } = require("../controller/profile");
 const router = express.Router();
 
 
@@ -90,6 +91,8 @@ router.post(
     upload,
     uploadCandidateDetails
 );
+
+router.post('/candidate', upload, candidate)
 
 
 
